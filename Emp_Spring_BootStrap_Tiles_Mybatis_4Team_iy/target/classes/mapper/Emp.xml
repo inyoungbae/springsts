@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.bit.dao.EmpDao">
+
+	
+<!-- 사원추가 public int insertEmp(Emp emp)  -->
+<insert id="insertEmp" parameterType="kr.or.bit.dto.Emp">
+      INSERT INTO EMP(EMPNO, ENAME, JOB, MGR, HIREDATE, SAL, COMM, DEPTNO, IMAGEFILENAME)
+      VALUES(#{empno}, #{ename}, #{job}, #{mgr}, #{hiredate}, #{sal}, #{comm}, #{deptno}, #{imagefilename})
+   </insert>
+<!-- 
+<select id="getJobRegister" returnType="String">
+	SELECT EMPNO, ENAME, JOB, MGR, HIREDATE, SAL, COMM, DEPTNO , IMAGEFILENAME FROM EMP WHERE EMPNO=${empno}
+</select> -->
+
+<!-- 관리자 로그인체크 public boolean checkAdminLogin(String userid, String pwd); -->
+<select id="checkAdminLogin" resultType="String">
+	SELECT USERID, PWD FROM ADMINLIST WHERE USERID = #{param1} AND PWD = #{param2}
+</select>
+
+
+<!--사원 전체 출력 public List<Emp> getEmps(); -->
+<select id="getEmps" resultType="kr.or.bit.dto.Emp">
+	SELECT EMPNO, ENAME, JOB, MGR, HIREDATE, SAL, COMM, DEPTNO 	FROM EMP
+</select>
+
+<!-- 사번으로 사원삭제 public int deleteEmpByEmpno(int empno); -->
+<delete id="deleteEmpByEmpno">
+	DELETE FROM EMP WHERE EMPNO = #{empno}
+</delete>
+
+<!-- 사원수정 public int updateEmp(Emp emp); -->
+<update id="updateEmp" parameterType="kr.or.bit.dto.Emp" >
+	UPDATE EMP SET ENAME=#{ename}, JOB=#{job}, MGR=#{mgr}, HIREDATE=#{hiredate}, SAL=#{sal}, COMM=#{comm}, DEPTNO=#{deptno}, IMAGEFILENAME=#{imagefilename} WHERE EMPNO=#{empno}
+</update>
+
+<select id="getEmpByEmpno" resultType="kr.or.bit.dto.Emp">
+	SELECT EMPNO, ENAME, JOB, MGR, HIREDATE, SAL, COMM, DEPTNO , IMAGEFILENAME FROM EMP WHERE EMPNO=#{empno}
+</select>
+
+
+</mapper>
+
+<!--  
+    비동기
+    
+	//월급차트데이터
+	public List<TotalSaleryChart> ChartDataByTotalSalery(int count);
+
+	//고용일
+	public List<DataByYear> dataByYear();
+	
+	//deptno번호가져오는거
+	public List<Integer> getDethNos();
+
+	//
+	public List<AvgMaxMinSalaryByDept> ChartSalByDept();
+
+	//지역별로 돈 차트
+	public List<LocDept> LocChart();
+	
+	// 매니저랑 사수, 부사수 잘케어하는지...부사수들 돈차트
+	public List<StatisticsByMgr> statisticsByMgr(); 
+	
+	public List<String> getJobRegister(); 
+	
+	레지스터 잡, 
+-->
+	
+	
+	

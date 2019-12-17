@@ -1,0 +1,90 @@
+FrontController -> mapping ->  CustomerController (함수단위 매핑) -함수 (모든 로직 ...DAO ,DTO ...)
+                               IndexController
+                               JoinController
+- @component, @repository(dao단), @service(service단) 를 빈객체로 만들어야 하는데, "COMPONENT-SCAN" 사용하면 빈객체로 만들지 않아도 한번에 처리 할 수 있음                                
+
+CustomerController -> Service -> DB(DAO) 작업 -> Service -> CustomerController -> VIEW단 (View : Model) 
+*** 업무를 하다보면, 하나의 서비스가 여러개의 업무를 처리해야하는 경우가 생김 
+*** 기존방식대로 한다면(메소드 하나당 업무하나) 트랜젝션 처리 어려움. (cause 트랜젝션 = 최소 하나이상의 업무)
+      - 트랜젝션 : 반쪽짜리 결과는 X (ONLY 성공 or 실패)
+               : 트랜젝션 처리는 최대한 단일하게. (할수록 느려지니까)
+ex. 트랜젝션의 예 : 글을쓸때마다 point 1점씩 준다고 하면 글을쓰는작업과 point주는 작업이 한작업에 일어나야 함 
+
+1. Service 단 추가 : DB작업 분리 (Mybatis)
+2. Controller 수정 하기 : Service 객체가 필요 >> sqlsession(x)                            
+
+----------------------------------------------------
+<beans xmlns="http://www.springframework.org/schema/beans"
+ xmlns:context="http://www.springframework.org/schema/context"
+ xmlns:tx="http://www.springframework.org/schema/tx"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://www.springframework.org/schema/beans 
+      http://www.springframework.org/schema/beans/spring-beans.xsd
+      http://www.springframework.org/schema/context
+      http://www.springframework.org/schema/context/spring-context.xsd
+      http://www.springframework.org/schema/tx
+      http://www.springframework.org/schema/tx/spring-tx.xsd">
+  
+  
+  <bean id="driverManagerDataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+    <property name="driverClassName" value="oracle.jdbc.driver.OracleDriver" />
+    <property name="url" value="jdbc:oracle:thin:@localhost:1521:XE"></property>
+    <property name="username" value="springuser"></property>
+    <property name="password" value="1004"></property>
+  </bean>
+  
+  <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+    <property name="dataSource" ref="driverManagerDataSource" />
+  </bean>
+    
+  <!-- 공통빈 --> 
+  <bean id="multipartResolver" 
+    class="org.springframework.web.multipart.commons.CommonsMultipartResolver" >
+             <property name="maxUploadSize" value="10485760"/>
+  </bean>
+  
+   <!-- Transaction 만들기 -->
+   <bean id="transactionManager" 
+   class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+    <property name="dataSource" ref="driverManagerDataSource" /> 
+   </bean>
+    
+   <tx:annotation-driven transaction-manager="transactionManager"/> @Transactional    // annotation-driven는 @Transactional을 처리하기 위해 필요해요.
+                                                                     //transaction-manager="transactionManager" transacion 어노테이션이있네? 내가 처리할게.
+</beans>
+
+트랜잭션 처리하기
+ xmlns:tx="http://www.springframework.org/schema/tx"             // namespace에 tx로 많이사용 & 스키마 2개 필요
+ http://www.springframework.org/schema/tx
+ http://www.springframework.org/schema/tx/spring-tx.xsd"
+
+<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+   <beans:property name="dataSource" ref="dataSource" />
+</bean>
+<tx:annotation-driven transaction-manager="transactionManager" />
+  
+--------------------------------------------------------------------------- 
+우리 시나리오 : 게시판에 글을쓰면 회원에게 point 1점을 줌. 
+			1,2번째 글까지는 정상처리. 3번째 글을썼을때 실제 게시판에 글이써지고, 포인트 증가가아닌 롤백이 되는지 보기위해 에러를 강제함 
+테이블 변경
+alter table member
+add point number;
+
+alter table member 
+add constraint ck_member_hit check(point < 3);
+
+
+DAO
+update member
+set point = nvl(point,0) + 1
+where userid = 'kglim';     
+
+->NoticeDao 인터페이스  함수 추가
+->NoticeDao.xml 에 update 구문 추가
+->CustomerService TEST ...
+
+
+-> CustomerService, CustomerController 변경작업 
+-> NoticeDao에 함수 추가 하기 
+
+

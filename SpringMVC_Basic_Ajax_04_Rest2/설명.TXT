@@ -1,0 +1,12 @@
+03_Rest랑 같음. 
+조금 다른데 
+js 부분 따로뺴서 쓰고 
+
+resource : 정적자원 들어가는 곳 
+
+03 Rest는 다이나믹프로젝트를 maven으로 변환한거고
+04 Rest2는 아예 처음부터 maven 
+
+
+EmpController 원래방식
+EmpRestController rest 방식

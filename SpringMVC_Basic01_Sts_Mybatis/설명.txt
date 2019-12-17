@@ -1,0 +1,2 @@
+SpringMVC_Basic08_WebSite_Annotation_JdbcTemplate_Tiles에다가
+이제 Mybatis적용해볼게요

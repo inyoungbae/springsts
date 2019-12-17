@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.NoticeDao">
+<!--  
+	
+	
+	
+	//게시물 상세
+	public Notice getNotice(String seq) throws ClassNotFoundException, SQLException;
+
+-->
+	<!-- 
+	1 getCount(String field, String query) >> hashMap
+	2.getCount(String field, String query) >> parameter 1개 이상인 경우
+	  mybatis 제공 : param1 , param2 , param3
+	  >> String field >> param1
+	  >> String query >> param2 
+	3.parameter 1개  getNum(int i) >>  생략 , parameterType="int" >> i이름
+	  1개 일때 : param1 을 지원하지 않는다(x)  
+	4. vo, dto 받기 
+	 -->
+	<select id="getCount" resultType="int">
+		SELECT COUNT(*) CNT 
+		FROM NOTICES 
+		WHERE ${param1} LIKE '%${param2}%'
+	</select>
+	<!--  
+	public List<Notice> getNotices(int page, String field, String query)
+	
+	>>int page 가지고 
+	
+	int srow = 1 + (page-1)*5;
+    int erow = 5 + (page-1)*5; 
+	
+	1 + (${param1}-1)*5 
+	5 + (${param1}-1)*5
+	-->
+	<select id="getNotices" resultType="vo.Notice">
+		SELECT * FROM
+ 				     (
+ 				     	SELECT ROWNUM NUM, N.* 
+ 				      	FROM ( SELECT * 
+ 				               FROM NOTICES 
+ 				               WHERE ${param2} LIKE '%${param3}%' ORDER BY REGDATE DESC
+ 				            ) N
+ 				      ) 
+ 		 WHERE NUM BETWEEN 1 + (${param1}-1)*5 AND 5 + (${param1}-1)*5
+	</select>
+	<!-- 
+		public Notice getNotice(String seq) 
+	 -->
+	<select id="getNotice" resultType="vo.Notice">
+		SELECT seq,title,writer,content,regdate,hit,filesrc,filesrc2 
+		FROM NOTICES 
+		WHERE SEQ=#{seq}
+	</select>
+	<!--  
+		public int delete(String seq)
+		parameter 1개 생략 가능
+	-->
+	<delete id="delete">
+		DELETE NOTICES WHERE SEQ=#{seq}
+	</delete>
+	
+	<!--  
+		public int update(Notice notice) 
+		jdbcType=VARCHAR >> 값이 넘어오지 않으면 null 강제하는 방법
+		파일수정 : null , null
+		한개수정 : 1.jpg , null
+		두개수정 : 1.jpg , 2.jpg
+	-->
+	<update id="update" parameterType="vo.Notice">
+		UPDATE NOTICES 
+		SET TITLE=#{title}, 
+			CONTENT=#{content}, 
+			FILESRC=#{fileSrc,jdbcType=VARCHAR} ,  
+			FILESRC2=#{fileSrc2,jdbcType=VARCHAR} 
+		WHERE SEQ=#{seq}
+	</update>
+	
+	<!--  
+		public int insert(Notice n)
+	-->
+	<!-- 
+	<insert id="insert" parameterType="vo.Notice">
+		INSERT INTO NOTICES(SEQ, TITLE, CONTENT, WRITER, REGDATE, HIT, FILESRC , FILESRC2) 
+		VALUES((SELECT MAX(TO_NUMBER(SEQ))+1 FROM NOTICES), #{title}, #{content}, 'bituser', SYSDATE, 0, #{fileSrc,jdbcType=VARCHAR},#{fileSrc2,jdbcType=VARCHAR})
+	</insert> 
+	-->
+	<insert id="insert" parameterType="vo.Notice">
+		<selectKey order="BEFORE" keyProperty="seq" resultType="String">
+			SELECT MAX(TO_NUMBER(SEQ))+1 FROM NOTICES
+		</selectKey>
+			INSERT INTO NOTICES(SEQ, TITLE, CONTENT, WRITER, REGDATE, HIT, FILESRC , FILESRC2) 
+			VALUES(#{seq}, #{title}, #{content}, #{writer}, SYSDATE, 0, #{fileSrc,jdbcType=VARCHAR},#{fileSrc2,jdbcType=VARCHAR})
+	</insert>
+</mapper>
+
+
+
+
+

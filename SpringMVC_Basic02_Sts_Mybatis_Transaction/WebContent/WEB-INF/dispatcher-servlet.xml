@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+      xmlns:context="http://www.springframework.org/schema/context"
+      xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans 
+                           http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/context 
+                           http://www.springframework.org/schema/context/spring-context.xsd
+                           http://www.springframework.org/schema/tx
+     					   http://www.springframework.org/schema/tx/spring-tx.xsd">
+<!--  
+xml 파일
+IOC 컨테이너에 적재될 bean 객체 생성과 injection (DI)
+
+1. 필용한 controller 생성하고 bean 객체 생성 , injection
+2. 현재 >> 하나의 클래스가 method 단위로 요청을 처리하는 것은 조금 뒤에 ...
+   현재 controller 하나당 요청 하나를 처리 ....
+   결과 : 하나의 클래스가 method 단위로 요청을 처리
+   
+ controller 요청당 한개
+   요청 : 게시판 목록보기 (행위 업무)
+              게시판 글쓰기
+              게시판 글 수정하기
+          
+  localhost:8090/website/customer/notice.htm
+  
+  ** 추가작업 (SpringMVC_Basic06_WebSite_Annotation_JdbcTemplate)
+  MemberDao 인터페이스 >> 구현 >> NewMemberDao >> 빈객체 생성
+  NoticeDao 인터페이스 >> 구현 >> NoticeDao    >> 빈객체 생성
+  
+  context:component-scan 엘리먼트 사용 
+  + 클래스 상단에  @Component(최상위개념) / @Repository(dao) / @Service(업무) / @Controller(요청처리) / @RestController(비동기요청처리) 인 
+   = > 클래스는 자동으로 빈 객체가 생성
+   
+   
+   ex. 
+   @Repository 
+   class NewMemberDao{}
+   
+   + xml에서 <context:component-scan base-package="dao" />
+      = > 아래 코드처럼 빈객체를 생성할 필요없음. 
+  
+-->   
+<!-- 모든 컨트롤러가 공통 사용 DAO 빈 객체  참조-->
+
+<context:annotation-config/>
+
+<context:component-scan base-package="ncontroller"/>
+<context:component-scan base-package="Service"/>  <!-- 빈객체를 만들 필요가 없음 -->
+
+
+<!-- <bean class="dao.NoticeDao"></bean> -->
+
+   
+<!-- 게시판 구현 -->
+<!-- <bean id="newNoticeDao" class="dao.NewNoticeDao"></bean> -->
+<!--  회원 구현  -->
+<bean id="newMemberDao" class="dao.NewMemberDao"></bean>
+
+<!--  Tiles 설정하기 -->
+<bean id="tilesConfigurer" class="org.springframework.web.servlet.view.tiles2.TilesConfigurer">
+   <property name="definitions">
+      <list>
+         <value>/WEB-INF/Tiles.xml</value>
+      </list>
+   </property>
+</bean>
+<bean id="urlBasedViewResolver" class="org.springframework.web.servlet.view.UrlBasedViewResolver">
+ <property name="viewClass" 
+     value="org.springframework.web.servlet.view.tiles2.TilesView" />
+</bean> 
+
+<!--Internetsourceresolver는 prefix..surfix 그러나 UrlBasedViewResolver는 url 기반 -->	
+ 
+ <!-- 
+ 	
+	public String index() {
+		return "index.jsp"; //view주소
+	}
+ 
+ 
+  ========================================tiles가 들어가면?
+ 	
+	public String index() {
+		return "customer.notice"; //url베이스는 리턴되는걸 주소로 보겠다. 
+	}
+  UrlBasedViewResolver : "customer.notice"를 주소로 보겠다. 
+  Tiles와 매핑을 해주겠다. 
+  Tiles에서는 
+  <definition name="*.*">
+   1* >customer           >> {1}    >> customer
+   2* > notice가 매핑됨           >> {2}    >> notice
+   
+   
+   a.b.c.d
+   
+   <definition name="*.*.*.*">
+   a 추출 > {1}
+   b 추출 > {2}
+   
+  Tiles 설정 END --> 
+  
+  
+  <!-- Trnasaction 처리하기 
+  	Root Container 안에 있는 Bean객체는 Child에서 Ref(참조)가 가능하다 
+  	
+  	driverManagerDataSource를 ref하고있어요. bean객체는 root 컨테이너 안에 있어요(id값을 그대로 가져옴).\
+  	
+  	
+  	 ** 우리가 트랜젝션을 적용하려고 하는 bean객체는 현재, Child Container안에서 생성 
+  -->
+  
+  <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+    <property name="dataSource" ref="driverManagerDataSource" /> 
+   </bean>
+   
+   <!-- 
+    	Transaction을 적용하는 방법
+    	함수의 상단에 @Transactional을 사용해서 동작하게 하기 위해서는 사전작업이 필요함 
+    	like @Autowired 동작을 위해 <context:annotation-config/>를 선언한거랑 비슷한거. 
+    -->
+	 <tx:annotation-driven transaction-manager="transactionManager"/>
+	 
+	 
+</beans> 
+

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="Emp">
+   <!--  
+   	exam.ibatis.dto.SearchParam
+   	ename  (String) 기본값 : null
+   	deptno (int)    기본값 : 0
+   	
+   	null , 0 둘다 값이 입력되지 않고 전달
+   -->
+   <select id="selectEmp" 
+           parameterClass="exam.ibatis.dto.SearchParam"
+           resultClass="exam.ibatis.dto.Emp">
+   			select * from emp 
+   		<!-- 
+   		     여러개의 컬럼을 사용 
+   		    isNotNull 문자열 (null)
+   		    isNotEqual  숫자 (0)
+   		    1. select * from emp
+   		    2. select * from emp where ename='kglim' : ename (0) , deptno=0
+   			3. select * from emp where ename='kglim' and deptno=10 :ename (0) , deptno=10(0)
+   		 -->
+   		<dynamic prepend="where">
+   			<isNotNull prepend="and" property="ename">
+   				ename = #ename#
+   			</isNotNull>
+   			<isNotEqual prepend="and" compareValue="0" property="deptno">
+   				deptno=#deptno#
+   			</isNotEqual>
+   		</dynamic>
+   </select>
+   
+<!--   SELECT * FROM emp WHERE empno IN(7788)
+       SELECT * FROM emp WHERE empno IN(7788,7902,8888,9999) -->
+  
+  
+       
+       
+   <select id="selectByEmpno" 
+           parameterClass="exam.ibatis.dto.SearchParamEmp"
+           resultClass="exam.ibatis.dto.Emp">
+   		select * from emp
+   		<iterate property="empnolist" prepend=" where empno in"
+   		                              open="("
+   		                              close=")"
+   		                              conjunction=",">  <!-- (7788,7902,8888,9999) -->
+   			#empnolist[]#
+   		</iterate>
+   </select>
+  
+  
+  <!-- <sqlMap namespace="board">
+	<typeAlias alias="Board" type="board.BoardVO"/>
+
+	<sql id="board.where">
+		searchValue값이 비어있지 않다면
+		<isNotEmpty property="searchValue">
+			parameterClass의 searchKey값이 "all" 과 같다면
+			<isEqual property="searchKey" compareValue="all">
+				WHERE title LIKE #searchValue#
+				OR content LIKE #searchValue#
+			</isEqual>
+			<isEqual property="searchKey" compareValue="title">
+				WHERE title LIKE #searchValue#
+			</isEqual>
+			<isEqual property="searchKey" compareValue="content">
+				WHERE content LIKE #searchValue#
+			</isEqual>
+		</isNotEmpty>
+	</sql>
+
+	<select id="board.getList" parameterClass="Board" resultClass="Board">
+		SELECT * 
+		FROM board
+		<include refid="board.where" /> board.where 를 여기에 삽입한다
+	</select>
+ -->
+  
+</sqlMap>    

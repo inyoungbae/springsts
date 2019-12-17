@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Emp"> <!-- namespace는 인터페이스 이름과 동일하게 감. 지금은 mapper를 구분할 수 있는 구분자 (여러개 xml중 어떤xml쓰는지 구분하고 싶을때) 
+                                                                      ex. Emp.getone , Emp.getUsers..처럼 패키지 이름으로 보면 됨-->
+	<!-- 원칙 :  parameterType="String" 
+	     parameter 1개 생략 일반적으로 ...
+	 -->
+	<select id="getone" resultType="kr.or.bit.dto.User"> <!-- SELECT 한 결과에 대해서 User Dto객체를 return  -->
+	
+		select empno, ename from emp where ename=#{ename}
+	</select>
+	
+	<!-- return multi row >> User 객체 여러개 >> List<User> (x) -->
+	<select id="getUsers" resultType="kr.or.bit.dto.User">
+		select empno , ename from emp
+	</select>
+</mapper>
+
+<!-- 처리하는쪽에서 1번 select문같은경우엔 한건을 처리/ 2번째 select문 같은경우엔 list로 multirow처리하는거 해결함  -->

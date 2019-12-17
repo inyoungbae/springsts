@@ -1,0 +1,107 @@
+@ResponseBody ,MessageConverter, <mvc:annotation-driven>
+
+컨트롤러 메소드에 @ResponseBody 로 어노테이션이 되어 있다면 메소드에서 리턴되는 값은 View 를 통하지 않고 
+ HTTP Response Body 에 직접 쓰여지게 된다.(객체가 특정한 포맷형태로 리턴된다. ex : 문자열, json, xml, rss, ...)
+
+리턴되는 데이터 타입에 따라 MessageConverter 에서 변환이 되는데,메시지 컨버터에는 다음과 같은 것들이 있다.
+
+MessageConverter 의 종류
+StringHttpMessageConverter
+FormHttpMessageConverter
+ByteArrayMessageConverter
+MarshallingHttpMessageConverter
+MappingJacksonHttpMessageConverter
+SourceHttpMessageConverter
+BufferedImagedHttpMessageConverter
+Jaxb2RootElementHttpMessageConverter
+RssChannelHttpMessageConverter
+
+사용하고자 하는 컨버터의 빈을 설정 파일에 등록하여야 하는데, 대부분의 메시지 컨버터 빈들은 <mvc:annotation-driven> 전용태그를 통하여 자동등록 된다. 
+물론 관련 라이브러리들은 클래스 패스에 존재하여야 한다.
+
+=========================================
+폼에서 입력한 데이터(파라미터 값)은 @ModelAttribute 커맨드 객체의 필드 setter에 의해 값이 채워(바인딩)지게 된다.
+단순히 값이 채워지는 것이 아니라 검증작업이 추가적으로 진행되는데 이때 커맨드의 값으로 바인딩이 불가능하면 예외가 발생한다.
+
+예외가 발생하면 요청한 사용자에게 500에러 페이지를 응답한다.
+
+@RequestMapping 메서드의 매개변수에 Error나 BindingResult타입을 추가하면 이 예외가 이 매개번수에 담겨서 커트롤드에 전달된다.
+
+
+
+
+다음과 같은 command객체가 있고  
+
+
+
+
+
+1.package sample.command;
+2. 
+3.import org.springframework.stereotype.Component;
+4. 
+5.@Component
+6.public class Command {
+7.    private int id;
+8.    public int getId() {
+9.        return id;
+10.    }
+11.    public void setId(int id) {
+12.        this.id = id;
+13.    }
+14.   
+15.}
+16. 
+
+클라이언트에서 "/errorTest?id=jjdev"요청이 들어오면 아래의 컨트롤러는 타입변환 중에 "jjdev"라는 문자값을 int타입으로 변경중에 실패하고 BindException을 발생시키고 클라이언트에는 500에러 페이지가 응답된다.
+1.package sample.controller;
+2. 
+3.import org.springframework.stereotype.Controller;
+4.import org.springframework.ui.Model;
+5.import org.springframework.validation.BindingResult;
+6.import org.springframework.web.bind.annotation.ModelAttribute;
+7.import org.springframework.web.bind.annotation.RequestMapping;
+8. 
+9.import sample.command.Command;
+10. 
+11.@Controller
+12.public class TestController {
+13.    @RequestMapping(value="/errorTest")
+14.    public String errorTest(@ModelAttribute Command command){
+15.        //System.out.println(command.getId());
+16.        return "/errorTest";
+17.    }
+18.}  
+
+위의 컨트롤러에 BindingResult 을 추가하여 다음과 같이 수정하면,
+ 클라이언트에 정상적으로 View가 응답되고 id값은 바인딩이 일어나지 않아 디폴트값이 0이 들어가 있게된다. 
+ 그리고 발생한 BindException은 BindingResult 매개변수에 저장된다. 
+ 저장된 예외를 활용하는 방법은 뒤에서 다시 다루겠다.
+
+
+1.package sample.controller;
+2. 
+3.import org.springframework.stereotype.Controller;
+4.import org.springframework.ui.Model;
+5.import org.springframework.validation.BindingResult;
+6.import org.springframework.web.bind.annotation.ModelAttribute;
+7.import org.springframework.web.bind.annotation.RequestMapping;
+8. 
+9.import sample.command.Command;
+10. 
+
+11.@Controller
+12.public class TestController {
+13.    @RequestMapping(value="/errorTest")
+14.    public String errorTest(@ModelAttribute Command command, BindingResult bindingResult){
+15.        //System.out.println(command.getId());
+16.        //System.out.println(bindingResult.hasErrors());
+17.        return "/errorTest";
+18.    }
+19.}  
+
+
+
+
+
+

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.MemberDao"> 	
+	
+	<!-- 회원정보 얻기
+	public Member getMember(String uid) throws ClassNotFoundException, SQLException; -->
+	<select id="getMember" resultType="vo.Member">
+		SELECT * FROM MEMBER WHERE userid=#{param1}
+	</select>
+	
+	
+	<!-- 회원가입 
+	public int insertMember(Member member) throws ClassNotFoundException, SQLException;
+	-->
+	<insert id="insertMember" parameterType="vo.Member">
+		insert into member(userid, pwd, name, gender, birth, is_lunar, cphone, email, habit, regdate)
+		values(#{userid}, #{pwd}, #{name}, #{gender}, #{birth}, #{isLunar}, #{cPhone}, #{email}, #{habit}, sysdate)
+	</insert>
+	
+	<!-- 회원수정하기 
+	public int updateMember(Member member) throws ClassNotFoundException, SQLException; -->
+	<update id="updateMember" parameterType="vo.Member">
+		update member
+		set pwd = #{pwd}, name=#{name}, cPhone=#{cPhone}, email=#{email}
+		where userid = #{userid}
+	</update>
+	
+	<!-- 
+	로그인 체크하기 
+	public int loginCheck(String username, String password)throws ClassNotFoundException, SQLException;-->
+	
+	<select id="loginCheck" resultType="vo.Member">
+		SELECT COUNT(*) FROM  WHERE ID=#{param1} AND PWD=#{param2}
+	</select>
+	
+	<!-- id체크 -->
+		<select id="idCheck" resultType="int">
+		select count(*) from member where userid = #{userid}
+	</select>
+	
+</mapper>
+
+
+
+
+

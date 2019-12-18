@@ -36,7 +36,6 @@ public class AjaxRestController {
 		
 		return deptnolist;
 	}
-	
 
 	
 	//ajax - idcheck

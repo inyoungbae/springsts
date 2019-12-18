@@ -1,0 +1,123 @@
+스프링 시큐리티는 지금까지 직접 구현해왔던 아이디/비밀번호를 입력하고 로그인하여 
+사용자를 인증(Authentication)하고, 로그인후 프로그램의 각각의 기능에 대한 
+권한을 체크(Authorization)하는 작업을 구현해둔 보안 프레임웍 입니다.
+
+
+프로그램외에 리소스(이미지 등)에 대한 접근도 제어할 수 있고, 
+CSRF(Cross Site Request Forgery) 공격 방어, 
+세션 고정(Session Fixation) 공격 방어 및 다중 접속 방지 
+등도 간단하게 구현할 수 있습니다.
+
+
+1. 의존성 등록(pom.xml)
+스프링 시큐리티 라이브러리를 포함 시킵니다.
+<-- 최소 의존성 -->
+<dependency>
+    <groupId>org.springframework.security</groupId>
+    <artifactId>spring-security-web</artifactId>
+    <version>4.2.1.RELEASE</version>
+</dependency>
+
+<dependency>
+    <groupId>org.springframework.security</groupId>
+    <artifactId>spring-security-config</artifactId>
+    <version>4.2.1.RELEASE</version>
+</dependency>
+
+2. 필터를 등록합니다.(web.xml)
+스프링 시큐리티는 서블릿 필터로 동작을 하여서 요청의 앞단에서 필요한 체크를 수행합니다.
+<!-- Spring Security -->
+<filter>
+   <filter-name>springSecurityFilterChain</filter-name>
+   <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+</filter>
+<filter-mapping>
+   <filter-name>springSecurityFilterChain</filter-name>
+   <url-pattern>/*</url-pattern>
+</filter-mapping>
+
+
+3. 스프링 시큐리티 설정파일 로딩하도록 지정(web.xml)
+스프링 시큐리티에 사용되는 빈들을 위한 설정파일을 스프링 프레임웍이 읽어들이도록 설정 파일 지정을 추가 합니다. security-context.xml 파일 입니다.
+<!-- The definition of the Root Spring Container shared by all Servlets and Filters -->
+<context-param>
+	<param-name>contextConfigLocation</param-name>
+	<param-value>
+	  /WEB-INF/spring/root-context.xml
+	  /WEB-INF/spring/security-context.xml
+	</param-value>
+</context-param>
+
+4. 스프링 시큐리티 <http> 설정(security-content.xml)
+최소한의 설정으로 스프링 시큐리티가 제공하는 기본 기능을 확인해보겠습니다.
+<http>
+    <intercept-url pattern="/**" access="hasRole('USER')" />
+    <form-login />
+    <logout />
+</http>
+
+<!--  provider  -->
+<authentication-manager>
+    <authentication-provider>
+        <user-service>
+            <user name="user" password="password" authorities="ROLE_USER" />
+        </user-service>
+    </authentication-provider>
+</authentication-manager>
+
+5. 로그아웃 기능 입니다.(home.jsp)
+<form:form action="${pageContext.request.contextPath}/logout" method="POST">
+    <input type="submit" value="로그아웃" />
+</form:form>
+
+
+7. 설정을 알아보겠습니다.(security-content.xml)
+
+
+
+설정파일 내의 <http> 요소에서 웹 관련 기능을 설정합니다. 
+최소 설정이므로 기본값들이 많이 사용되었습니다. 
+위의 설정에서 사용된 기본값들을 더 적어 보면 다음과 같을 것입니다.
+
+ 
+
+<http use-expressions="true">
+    <intercept-url pattern="/**" access="hasRole('USER')" />
+    <form-login login-page="/login" />
+    <logout logout-url="/logout" />
+    <csrf disabled="false"/>
+</http>
+ 
+
+use-expressions 속성은 <intercept-url>의 access 속성에 표현식을 사용할 수 있다는 뜻입니다. 이 값이 "false"이면 access="USER" 로 값을 바로 사용해야 합니다.
+<intercept-url> 요소는 pattern 속성으로 주어인 URL 에 대해 access속성의 권한을 요구합니다. 위의 의미는 모든 URL(/**)을 보호하고, 액세스하기 위해서는 ROLE_USER 역할을 요구합니다. 접두어 "ROLE_" 가 없어도 동일한 의미 입니다.(접두어를 붙여도 됩니다.)
+<intercept-url>요소는 서로 다른 요구사항을 나타내는 여러개가 나올 수 있습니다. 
+여러개가 나올 경우 순서대로 매칭되어져서 첫번째가 매칭된것이 사용되어 집니다. 
+그러므로 가장 특수한 경우를 위쪽에 놓고 일반적인 경우를 아래쪽에 놓아야 합니다.
+<form-login> 요소는 로그인을 위해서 폼을 사용합니다. 
+로그인처리 URL의 기본값은 "/login" 입니다.
+<logout> 요소는 로그아웃 URL을 제공한다는 뜻입니다. 
+기본값은 "/logout" 입니다.
+
+<csrf disabled="false"/> 는 
+CSRF(Cross Site Resquest Fosery) 공격을 방어하기 위한 처리를 하겠다는 뜻입니다.
+ 이게 기본값입니다. 
+ CSRF 방어를 위해 POST 방식으로 값을 넘기는 곳에는 
+ 모두 <input name="_csrf" type="hidden" value="ae10ba14-8ca9-4171-9f0d-dd472321a08d" /> 와 같은 숨겨진 값을 보내게 됩니다.
+
+프로바이더 부분은 <user name="user" password="password" authorities="ROLE_USER" /> 
+부분에서 사용자 정보를 제공하고 있습니다. 
+실제로 사용할때는 이 정보를 데이터베이스에서 가져오도록 설정하게 될것 입니다.
+
+CSRF 방어를 사용하도록 되어 있다면 로그아웃을 POST 방식으로 해야 합니다. 
+CSRF 방어를 사용하지 않도록 되어있다면 
+GET 방식도 되므로 단순 링크로 처리할 수 있습니다.
+
+ <a href="<c:url value='/logout' />">로그아웃</a>
+ 
+
+
+
+
+
+

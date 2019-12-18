@@ -49,7 +49,6 @@ IOC 컨테이너에 적재될 bean 객체 생성과 injection (DI)
 <context:component-scan base-package="kr.or.bit.controller"/>
 
 
-
 <!-- ajax 위한 부분 -->
 <mvc:annotation-driven /> <!-- @ResponseBody  messageConverter : json 변환 .. 동작-->
 

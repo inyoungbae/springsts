@@ -1,0 +1,101 @@
+1. 사용자/권한 테이블
+사용자 권한 처리를 위해서 총 5개의 테이블로 구성됩니다. 
+테이블을 생성하고 기본 데이터를 입력하는 쿼리파일은 글 하단 전체소스내의 
+doc폴더에 sample.sql 파일에 있습니다. 각각의 테이블에 대해 알아 보도록 하겠습니다.
+
+i. users - 회원 정보 테이블
+- username이 아이디입니다. 여기에서는 비밀번호가 암호화 되지 않았습니다.
+- enabled는 boolean 값으로 계정 사용여부를 나타냅니다.
+
+ii. authorities - 회원, 권한 관계 테이블
+- 회원(username)이 가지는 권한정보가 있는 테이블 입니다.
+- authority는 "ROLE_USER", "ROLE_ADMIN" 이 될 것입니다.
+
+iii. gropus - 그룹 테이블 입니다.
+- 그룹에 권한을 할당하고, 사용자에게 그룹을 할당하는 방식으로 권한을 부여할 수 있습니다.
+
+iv. group_authorities - 그룹이 가지는 권한 정보 테이블
+- groupu_id는 groups테이블의 id와 관계되는 외래키 입니다.
+- authority는 "ROLE_USER", "ROLE_ADMIN" 이 될 것입니다.
+
+
+v. group_member - 그룹과 회원의 관계 테이블
+- group_id 는 groups 테이블의 id 입니다.
+- username 은 회원 아이디 입니다.
+
+
+2. 권한 부여방식
+위의 테이블들을 가지고 회원에게 권한을 부여하는 방법은 두 가지가 있습니다.
+첫 번째는 users와 authorities 테이블을 사용하여 권한을 부여 하는 것입니다. 
+users테이블의 정보로 로그인하고, authorities 의 권한정보를 접근 제어를 합니다.
+
+
+두 번째 방법은 users 와 (group_members, groups, group_authorities) 로 처리하는 방법입니다. 역시 users 정보로 로그인하고, 권한은 회원이 속한 그룹에 할당된 권한으로  접근제어를 하는 것입니다.
+스프링 시큐리티는 먼저 authorities 테이블에서 권한을 확인하고, 
+다음에 group_members 테이블에서 권한을 확인합니다. 
+그러므로 두 가지 방법중 하나만 사용하면 됩니다. 
+즉,  authorities 테이블에 정보가 없어도 group_members 테이블에 정보가 있으면 권한이 부여됩니다.
+ 그 반대로 마찬가지 입니다.
+
+
+3. security-context.xml 설정파일을 보겠습니다.
+회원 정보와 권한 정보를 데이터베이스에서 가져오도록 설정하는 부분입니다.
+
+ 
+!--
+<beans:bean id="userDetailsService" class="org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl">
+    <beans:property name="dataSource" ref="dataSource"/>
+</beans:bean>
+-->
+
+<!--  provider  -->
+<authentication-manager>
+    <authentication-provider>
+    <jdbc-user-service 
+        data-source-ref="dataSource"
+        role-prefix=""
+        users-by-username-query="select username, password, enabled from users where username = ?"
+        authorities-by-username-query="select username, authority from authorities where username = ?"
+        group-authorities-by-username-query="select g.id, g.group_name, ga.authority from groups g, group_members gm, group_authorities ga where gm.username = ? and g.id = ga.group_id and g.id = gm.group_id"
+    />
+    </authentication-provider>
+</authentication-manager>
+
+
+
+인증 정보를 가져오는 기능을 하는 인터페이스가 
+org.springframework.security.core.userdetails.UserDetailsService 입니다. 
+데이터베이스에서 정보를 가져오도록 이 인터페이스를 구현해둔 클래스가 
+org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl 입니다. 
+위 코드의 id가 "userDetailsService"인 빈이 이것 입니다. 이 빈에 대한 정의는 넣지 않아도 됩니다.
+이 빈은 <jdbc-user-service> 요소로 사용되어 집니다. 각 속성들을 알아보겠습니다.
+
+
+- data-source-ref="dataSource" : 데이터베이스 연결을 나타내는 dataSource 입니다. 
+  root-contxt.xml 파일에 정의 되어 있습니다.
+- role-prefix : "ROLE_" 와 같은 롤 앞에 붙는 prefix 를 지정합니다. 
+권한 체크시 여기에 지정된 값을 붙여서 확인합니다. 
+데이터베이스에 ROLE_USER 형식으로 데이터를 넣어 둿으므로 여기서는 값을 주지 않았습니다.
+
+- users-by-sername-query="" 
+: 아이디로 사용자 정보를 가져오는 쿼리 입니다. users 테이블에서 정보를 가져옵니다.
+
+- authorities-by-username-query="" 
+: authorities 테이블로부터 권한정보를 가져옵니다.
+
+- group-authorities-by-username-query="" 
+: 그룹/회원 관계로부터 권한정보를 가져옵니다.
+
+
+이것으로 해서 회원/권한 정보를 데이터베이스로부터 가져오는 처리를 해보았습니다. 
+하지만 아직 한가지가 처리되지 않을 것이 있습니 다. 
+URL별로 권한을 지정하는 부분이 아직도 xml 파일에 남아 있습니다. 다음 코드 입니다.
+
+<intercept-url pattern="/login/loginForm.do" access="permitAll" />
+<intercept-url pattern="/home.do" access="permitAll" />
+<intercept-url pattern="/admin/**" access="hasRole('ADMIN')" />
+<intercept-url pattern="/**" access="hasAnyRole('USER, ADMIN')" />
+
+
+https://blog.naver.com/protosi/220151051062
+https://offbyone.tistory.com/93?category=283360

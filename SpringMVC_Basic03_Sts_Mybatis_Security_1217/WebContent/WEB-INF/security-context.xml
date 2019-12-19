@@ -34,7 +34,7 @@
 <!-- ===============================================================================================================  --> 
  
   <!-- 2단계
-  1단계 >> 로그인 자동화 처리 >> /login  >> Controller에서 id, pwd받아서 인증확인, 권한확인, session처리를 자동화시킴 
+  1단계 >> 로그인 자동화 처리 >> /login  >>[ Controller에서 id, pwd받아서 인증확인, 권한확인, session]처리를 자동화시킴 
                        >> /logout >> 직접처리하는 형태로 해야함 
   
   http://localhost:8090/SpringMVC_Basic03_Sts_Mybatis_Security/login?error  - (원래)login 실패시 넘어가는 url 

@@ -53,17 +53,13 @@ SqlSessionTemplate
 	</configuration>
     
     /> 
-    
     -->
 </bean> 
 
 <bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate">
   <constructor-arg index="0" ref="sqlSessionFactoryBean"/>
 </bean>
-<!-- Mybatis 설정  -->
-		
- 
- 
+
  
  
  <!-- 파일 업로드지원 Resolver -->

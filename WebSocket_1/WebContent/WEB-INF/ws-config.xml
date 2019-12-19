@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+   xmlns:mvc="http://www.springframework.org/schema/mvc" 
+   xmlns:websocket="http://www.springframework.org/schema/websocket"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/mvc
+       http://www.springframework.org/schema/mvc/spring-mvc.xsd
+       http://www.springframework.org/schema/websocket
+       http://www.springframework.org/schema/websocket/spring-websocket.xsd">
+<!-- websocket 네임스페이스 이용해서 웹소켓 서버 설정 
+websocket:mapping-> 웹소켓 클라이언트가 연결할 때 사용할 엔드포인트(path) 속성과 webSocketHandler 객체를 연결해준다
+"/echo-ws"로 접속하면 echoHandler 빈을 통해서 처리한다고 설정  -->       
+<websocket:handlers>
+   <websocket:mapping handler="echoHandler" path="/echo-ws"/>
+   <websocket:mapping handler="chatWebSocketHandler" path="/chat-ws"/>
+</websocket:handlers>
+
+<bean id="echoHandler" class="ws.EchoHandler"></bean>
+<bean id="chatWebSocketHandler" class="ws.ChatWebSocketHandler"></bean>
+
+<mvc:default-servlet-handler/>       
+       
+</beans>      
+       

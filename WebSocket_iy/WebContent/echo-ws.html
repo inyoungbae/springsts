@@ -18,7 +18,7 @@ $(document).ready(function(){
 		wsocket.onmessage = onMessage;
 		wsocket.onclose = onClose;
 		wsocekt.onopen = function() { // 서버에 연결되면 실행
-			wsocket.send( $('#message').val()); //서버에 메시지전송
+			wsocket.send( $("#message").val()); //서버에 메시지전송
 		};
 	}
 	
@@ -34,7 +34,7 @@ $(document).ready(function(){
 </script>
 </head>
 <body>
-<input type="text" id="message">
-<input type="button" id="sendBtn" value="전송">
+	<input type="text" id="message">
+	<input type="button" id="sendBtn" value="전송">
 </body>
 </html>

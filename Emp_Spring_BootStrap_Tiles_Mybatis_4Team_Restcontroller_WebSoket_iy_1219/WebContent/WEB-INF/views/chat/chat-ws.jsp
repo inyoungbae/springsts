@@ -9,8 +9,9 @@
 <script type="text/javascript">
 	var wsocket;
 	
+	//웹소켓 연결
 	function connect() {
-		wsocket = new WebSocket("ws://localhost:8090/Emp_Spring_BootStrap_Tiles_Mybatis_4Team_Restcontroller_iy/Chat-ws1.do");  //웹소켓 연결
+		wsocket = new WebSocket("ws://192.168.6.27:8090/Emp_Spring_BootStrap_Tiles_Mybatis_4Team_Restcontroller_WebSoket_iy_1219/Chat-ws1.do");  
 		wsocket.onopen = onOpen;
 		wsocket.onmessage = onMessage;
 		wsocket.onclose = onClose;
@@ -21,7 +22,7 @@
 	}
 	
 	function onOpen(evt) {
-		appendMessage("연결되었습니다.");
+		appendMessage($("#nickname").val()+"님이 입장하셨습니다.");
 	}
 	
 	function onMessage(evt) {  // 서버로부터 메세지 받으면 실행되는 함수 
@@ -73,14 +74,15 @@
 	<jsp:include page="/common/Top.jsp"></jsp:include>
 		<div id="wrapper">
 		<jsp:include page="/common/Left.jsp"></jsp:include>
-		<div id="content-wrapper">
-
+		<div id="content-wrapper" style="margin-left: 10%">
+	<input type="button" id="exitBtn" value="나가기">
+	<br><br>
 	이름:<input type="text" id="nickname">
 	<input type="button" id="enterBtn" value="입장">
-	<input type="button" id="exitBtn" value="나가기">
+	
     
     <h1>대화 영역</h1>
-    <div id="chatArea"><div id="chatMessageArea"></div></div>
+    <div id="chatArea" ><div id="chatMessageArea"style="width: 100%; height: 80%"></div></div>
     <br/>
     <input type="text" id="message">
     <input type="button" id="sendBtn" value="전송">

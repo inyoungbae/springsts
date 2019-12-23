@@ -73,7 +73,7 @@
         </c:choose>
         
         <li class="nav-item active">
-            <a class="nav-link" href="Chat-ws.do">
+            <a class="nav-link" href="Chat-list.do">
                 <i class="fas fa-home"></i>
                 <span>Chat! 채팅</span>
             </a>

@@ -9,10 +9,8 @@
 <head>
 <meta charset="utf-8">
 <title>채팅</title>
-<script
-	src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-<link rel="stylesheet"
-	href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
 <jsp:include page="/common/HeadTag.jsp" />
 
 <script type="text/javascript">
@@ -38,12 +36,10 @@ console.log('${param.roomName}');
 
 	function disconnect() { //웹소켓 연결 해제
 		wsocket.close();
-
 	}
 
 	function onOpen(evt) {
 		$('#enterBtn').hide();
-		//appendMessage($("#nickname").val() + "님이 입장하셨습니다.", "center", '<i class="fab fa-gratipay"></i>', '#FFFFFF');
 		appendMessage("${sessionScope.userid}님이 입장하셨습니다.'<br><br>'", "center", '<i class="fab fa-gratipay"></i>', '#FFFFFF');
 	}
 
@@ -56,14 +52,14 @@ console.log('${param.roomName}');
 		console.log(jsondata.msg);
 
 		if('${sessionScope.userid}' == jsondata.id) {
-			appendMessage(jsondata.id + " : " + jsondata.msg, "right", '<i class="far fa-heart"></i>', 	'#FFDAB9');
+			appendMessage(jsondata.id + ":" + jsondata.msg, "right", '<i class="far fa-heart"></i>', 	'#FFD133');
 		}else {
-			appendMessage(jsondata.id + " : " + jsondata.msg, "left",'<i class="far fa-heart"></i>', '#B0C4DE');
+			appendMessage(jsondata.id + ":" + jsondata.msg, "left",'<i class="far fa-heart"></i>', '#F7F6F1');
 			}
 	}
 
 	function onClose(evt) {
-		appendMessage("${sessionScope.userid}님이 퇴장하셨습니다.", "center", '<i class="fab fa-gratipay"></i>', 	'#FFFFFF'); //appendMessage - 함수 
+		appendMessage("${sessionScope.userid}님이 퇴장하셨습니다.", "center", '<i class="fab fa-gratipay"></i>',	'#FFFFFF'); //appendMessage - 함수 
 		
 	}
 
@@ -73,18 +69,23 @@ console.log('${param.roomName}');
 		if(msg == "") {
 			return;
 			}else {
-				var json = { "id" : nickname,
+				var json = { 
+						"cmd" : "enter",
+						"id" : nickname,
 					     "msg" : msg
 					   }
 				}
 		   wsocket.send(JSON.stringify(json));   //서버로 넘길때 String으로 밖에 못받아서 json > String 변환
 		$("#message").val("");
 		$("#message").focus();
-	}
+	};
 	
 	function appendMessage(msg, pst, icon, color) {
 
-		var ptag= $("<div class='bubble' style='margin-top:1%'>"+icon+"&nbsp&nbsp<span class='bubbleinner' style='border:1px solid lightgray; border-radius: 0.3em; background-color:"+ color +"'>"+ msg +" </span></div>");
+		let message1 = msg.split(':')[0];
+		let message2 = msg.split(':')[1];
+
+		var ptag= $("<div class='bubble' style='margin-top:1%'>"+icon + message1 + "&nbsp&nbsp<span class='bubbleinner' style='border:1px solid lightgray; border-radius: 0.3em; background-color:"+ color +"'>"+ message2 +" </span></div>");
 		ptag.css("text-align", pst);
 		$("#chatMessageArea").append(ptag);
 		scroll();
@@ -160,6 +161,11 @@ h5 {
 	padding : 1%;
 	
 }
+
+#wrapper {
+background-color: #B3DBF1; 
+}
+
 </style>
 </head>
 <body scroll="no">
@@ -171,7 +177,7 @@ h5 {
 			<input type="button" id="exitBtn" value="나가기"> <br>
 			
 
-			<h5>${param.roomName}</h5>
+			<h5><i class="fas fa-comments"></i>&nbsp;&nbsp;&nbsp;${param.roomName}</h5>
 
 			<hr>
 			<br>

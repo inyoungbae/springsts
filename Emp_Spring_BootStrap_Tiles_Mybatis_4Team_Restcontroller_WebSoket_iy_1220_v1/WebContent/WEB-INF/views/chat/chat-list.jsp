@@ -25,40 +25,109 @@ function openWin(){
    if($("#roomName").val() == ""){
       alert("제목을 입력하세요"); 
    } else {
+	   
 		let roomnm = $('#roomName').val();
+		//console.log(roomnm);
 		let control = $("<tr></tr>");
 		control.append("<td>"+n+"</td>");   
-		//let tag = "<a href='Chat-ws.do?roomName="+'$("#roomName").val()'+"'>";
-		let tag = "<a href='javascript:windowOpen('"+ roomnm+ "')'>";
-		control.append("<td>" + tag + $("#roomName").val() + "</td>");
-
-		control.append("<td>"+"${userid}"+"</td>");    
-		console.log(control);
+		control.append("<td>" + roomnm + "</td>")
+		control.append("<td>"+"${userid}"+"</td>");  
+		//console.log("<button onclick='windowOpen("+'"'+roomnm+'"'+");'>Enter</button>");
+		let entBtn = "<button onclick='windowOpen("+'"'+roomnm+'"'+");'>Enter</button>";
+		control.append("<td>"+ entBtn +"</td>");  
+		//console.log(control);
 		
 	   $('#chatbody').append(control);
 
 	   windowOpen(roomnm);
-	
    }    
 }
 
+
 function windowOpen(roomnm) {
+	//console.log(roomnm);
     window.open("Chat-ws.do?roomName="+ roomnm, roomnm, 
     "width=500, height=600, toolbar=no, scrollbars=no, resizable=no, channelmode=yes, top=20, left=50");
-    console.log( $("#roomName").val());
+    //console.log( $("#roomName").val());
 }
 
-/*
- toolbar = 상단 도구창 출력 여부 
- menubar = 상단 메뉴 출력 여부
- location = 메뉴아이콘 출력 여부
- directories = 제목 표시줄 출력 여부
- status = 하단의 상태바 출력 여부
- scrollbars = 스크롤바 사용 여부
- resizable = 팝업창의 사이즈 변경 가능 여부
- fullscreen = 전체화면으로 할지 선택 여부
- channelmode = F11키 기능이랑 같음
- */
+
+
+	var wsocket;
+
+	//웹소켓 연결
+	function connect() {
+
+		wsocket = new WebSocket("ws://192.168.6.27:8090/Emp_Spring_BootStrap_Tiles_Mybatis_4Team_Restcontroller_WebSoket_iy_1220_v1/Chat-ws1.do");
+		
+		wsocket.onopen = onOpen;
+		wsocket.onmessage = onMessage;
+		wsocket.onclose = onClose;
+	};
+
+	function disconnect() { //웹소켓 연결 해제
+		wsocket.close();
+	};
+
+	function onOpen(evt) {
+	};
+
+	function onMessage(evt) { // 서버로부터 메세지 받으면 실행되는 함수 
+		let data = evt.data;
+		console.log(data);
+	};
+
+	function onClose(evt) {
+		
+	};
+
+	function send() {
+		
+ 		var json = { "cmd" : "create",
+ 		 		"roomname" : $('#roomName').val(),
+ 		 		"captain" : '${userid}'
+				};
+
+ 		wsocket.send(JSON.stringify(json)); 
+	};
+	
+	function appendMessage(msg, pst, icon, color) {
+
+	};
+
+	function scroll() {
+		var chatAreaHeight = $("#chatArea").height();
+		var maxScroll = $("#chatMessageArea").height() - chatAreaHeight;
+		$("#chatArea").scrollTop(maxScroll);
+		};
+
+
+
+$(document).ready(function() {
+	connect ();
+	
+	$('#roomName').keypress(function(event){
+		var keycode = (event.keyCode ? event.keyCode : event.which);
+		if (keycode == '13') { //(keycode == '13')  = enter 
+			send();
+			openWin();
+		}
+		event.stopPropagation();
+		});
+
+	
+	$('#makeRoomBtn').click(function() {
+		send();
+		//openWin();
+	});
+	
+});
+
+
+
+
+
+ 
 </script>
 </head>
 <body>
@@ -67,9 +136,11 @@ function windowOpen(roomnm) {
 		 <jsp:include page="/common/Left.jsp"></jsp:include> 
 	
 		<div id="content-wrapper">
-			<div class="row" style="margin-left: 1%">
+			<div class="row" style="margin-left: 2%">
+			<form action="">
 			<input type="text" id="roomName" name="roomName" placeholder="방 제목을 입력하세요" style="margin-right: 1%"> 
-			<input type="button" class="btn btn-primary btn-block" style="width: 10%" id="makeRoomBtn" value="방만들기" onclick="openWin()" >
+			<input type="button" class="btn btn-primary btn-block" style="width: 100px" id="makeRoomBtn" value="방만들기" >
+			</form>
 			</div>
 			<br>
 			
@@ -88,12 +159,11 @@ function windowOpen(roomnm) {
                                             <th>No</th>
                                             <th>Roomname</th>
                                             <th>Captain</th>
-                                            
+                                            <th>Entrance</th>
                                         </tr>
                             </thead>
 								<tbody id="chatbody">
-										<tr>
-										</tr>
+										
 								</tbody>
 							</table>
                             </div>

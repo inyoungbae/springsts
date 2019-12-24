@@ -16,4 +16,5 @@ public class HandlerController {
 	public String chatRoomEnter() {
 		return "/WEB-INF/views/chat/chat-room.jsp";
 	}
+
 }

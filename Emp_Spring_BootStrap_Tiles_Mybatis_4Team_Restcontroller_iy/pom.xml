@@ -66,8 +66,11 @@
 			<version>${org.springframework-version}</version>
 		</dependency>
 		<!-- DB 작업(Oracle) Local -->
-		<!-- <dependency> <groupId>com.oracle</groupId> <artifactId>ojdbc</artifactId> 
-			<version>11</version> </dependency> -->
+		<!-- <dependency> 
+		<groupId>com.oracle</groupId> 
+		<artifactId>ojdbc</artifactId> 
+			<version>11</version> 
+			</dependency> -->
 		<dependency>
 			<groupId>com.oracle</groupId>
 			<artifactId>ojdbc6</artifactId>

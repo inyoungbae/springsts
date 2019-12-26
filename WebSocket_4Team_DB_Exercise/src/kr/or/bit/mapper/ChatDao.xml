@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.bit.dao.ChatDao">
+
+	<!-- 방만드는 DB -->
+	<insert id="insertRoomInfo" parameterType="kr.or.bit.dto.ChatRoom">
+		INSERT INTO CHATROOM(ref, owner, name, max)
+		VALUES(#{ref}, #{owner}, #{name}, #{max})
+	</insert>
+
+	<!-- public List<ChatRoom> getRoomInfo() -->
+	<select id="getRoomInfo" resultType="kr.or.bit.dto.ChatRoom">
+		SELECT REF, OWNER, NAME, MAX FROM CHATROOM
+	</select>
+
+</mapper>
+
+
+
+
+

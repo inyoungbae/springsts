@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.bit.dao.ChatDao">
+
+	<insert id="insertRoomInfo" parameterType="kr.or.bit.dto.ChatRoom">
+		INSERT INTO CHATROOM(ref, owner, name, max)
+		VALUES(ref_seq.nextval, #{owner}, #{name}, #{max})
+	</insert>
+
+	<select id="getRoomInfo" resultType="kr.or.bit.dto.ChatRoom">
+		SELECT REF, OWNER, NAME, MAX FROM CHATROOM order by ref desc
+	</select>
+	
+</mapper>
+
+
+
+
+

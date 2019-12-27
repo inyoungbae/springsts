@@ -49,6 +49,7 @@
 	})
 
 	 async function backAndForth () {
+		 console.log("async function in");
 	  const values = [];
 	  let currentStep;
 
@@ -71,11 +72,17 @@
 	  }
 
 	  if (currentStep === steps.length) {
-	    let data = { cmd : "createChatRoom"
-	    	    		  , name : values[0]
-	    	    		  , max : values[1]
+		  console.log("room create 되나요?");
+	    let data = { cmd : "createChatRoom", 
+	    	    	name : values[0], 
+	    	    	max : values[1],
+	    	    	ref : "${ref}"
 	    	    		};
-	    sendSocket(data);
+		console.log("??????");
+		console.log(typeof(data));
+		console.log(data);
+	    wsocket.send(JSON.stringify(data));   //stringify 메소드는 json 객체를 String 객체로 변환.
+	    console.log("after send");
 	    openChat(data.name);
 	  }
 	}
@@ -101,10 +108,10 @@
 
 		
     function sendSocket(jsonData) {
-    	jsonData.sender = "${sessionScope.userid}";  //jsonData.sender하면 json데이터에 key : sender / value: ${sessionScope.userid} 만들어짐 
-		jsonData.ref = "${ref}";
-		console.log("send");
-    	wsocket.send(JSON.stringify(jsonData));
+    	//jsonData.sender = "${sessionScope.userid}";  //jsonData.sender하면 json데이터에 key : sender / value: ${sessionScope.userid} 만들어짐 
+		//jsonData.ref = "${ref}";
+		//console.log("send");
+    	//wsocket.send(JSON.stringify(jsonData));   //stringify 메소드는 json 객체를 String 객체로 변환.
     }
 
     function openChat(room){

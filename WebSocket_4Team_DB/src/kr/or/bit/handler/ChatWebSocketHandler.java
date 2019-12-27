@@ -1,9 +1,7 @@
 package kr.or.bit.handler;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.ibatis.session.SqlSession;
 import org.codehaus.jettison.json.JSONArray;
@@ -15,7 +13,6 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import kr.or.bit.dao.ChatDao;
-import kr.or.bit.dao.EmpDao;
 import kr.or.bit.dto.ChatRoom;
 import kr.or.bit.helper.ChatInfoHepler;
 
@@ -42,7 +39,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
 		// 채팅 접속
 		if(cmd.equals("on")) {
 			System.out.println("세션내용은?" + session);
-			users.put(user, session);			
+			users.put(user, session);	
 			sendChatRoomInfoMessage();
 		}
 		// 채팅방 접속
@@ -71,12 +68,13 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
 	
 	@Override
 	public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
+		log(session.getId() + " 연결 종료");
 		String cmd = getAttribute(session, "cmd");
 		String user = getAttribute(session, "user");
 		System.out.println(cmd+user);
 		// 접속 유저 종료
 		if(cmd.equals("on")) { 
-			System.out.println("창 종료");
+			//System.out.println("창 종료");
 			users.remove(user);
 		}
 		// 채팅창 종료
@@ -101,21 +99,38 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
 	}
 
 	private void sendMessage(WebSocketSession session, JSONObject data) throws Exception {
+		System.out.println("sendMessage in");
+		System.out.println(data);
+		System.out.println(session);
 		String sendUser = getAttribute(session, "user");
+		System.out.println(sendUser);
 		JSONObject json = new JSONObject().put("message", data.getString("message"))
 																.put("sender", sendUser);
 
 		ChatRoom room = roomInfos.get(data.get("room"));
 		for (Map.Entry<String, WebSocketSession> userInfo : room.getUsers().entrySet()) {
 			String type = sendUser.equals(userInfo.getKey()) ? "my" : "other";
+			System.out.println("타입은?");
+			System.out.println(type);
+			System.out.println(userInfo);
+			System.out.println(roomInfos);
+			System.out.println("방  인원사이즈★"+ roomInfos.size());
+		
 			json.put("type", type);
+		
 
 			userInfo.getValue().sendMessage(new TextMessage(json.toString()));
+			System.out.println("--------------");
+			System.out.println(userInfo);
+			System.out.println(userInfo.getValue());
+			log(userInfo.getValue() +"에 메세지 발송");
+			System.out.println("------------------");
 		}
 	}
 
 	private void createChatRoom(WebSocketSession session, JSONObject data) throws Exception {
 		System.out.println("데이터가뭐니?" + data);
+	
 		ChatRoom room = new ChatRoom(getAttribute(session, "user")
 														, data.getString("name")
 														, Integer.parseInt(data.getString("max"))

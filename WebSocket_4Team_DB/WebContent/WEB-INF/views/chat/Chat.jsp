@@ -49,6 +49,7 @@
 
 	function onMessage(evt) { // "message" 이름의 MessageEvent 이벤트가 발생하면 처리할 핸들러
 		var data = JSON.parse(evt.data);
+		console.log("onMessage in");
 		console.log(data.sender);
 		console.log(data.message);
 		appendMessage(data);
@@ -90,11 +91,11 @@
 		}
 
 		let chatAreaHeight = $("#chatArea").height();
-		console.log(chatAreaHeight);
-		console.log($("#chatMessageArea").height());
+		//console.log(chatAreaHeight);
+		//console.log($("#chatMessageArea").height());
 		let maxScroll = $("#chatMessageArea").height() - chatAreaHeight;
-		console.log("scroll");
-		console.log(maxScroll);
+		//console.log("scroll");
+		//console.log(maxScroll);
 		$("#chatArea").scrollTop(maxScroll);
 	}
 	

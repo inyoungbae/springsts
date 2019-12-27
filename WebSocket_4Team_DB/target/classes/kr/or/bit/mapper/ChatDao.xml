@@ -7,12 +7,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	<!-- 방만드는 DB -->
 	<insert id="insertRoomInfo" parameterType="kr.or.bit.dto.ChatRoom">
 		INSERT INTO CHATROOM(ref, owner, name, max)
-		VALUES(#{ref}, #{owner}, #{name}, #{max})
+		VALUES(ref_seq.nextval, #{owner}, #{name}, #{max})
 	</insert>
 
 	<!-- public List<ChatRoom> getRoomInfo() -->
 	<select id="getRoomInfo" resultType="kr.or.bit.dto.ChatRoom">
-		SELECT REF, OWNER, NAME, MAX FROM CHATROOM
+		SELECT REF, OWNER, NAME, MAX FROM CHATROOM order by ref desc
 	</select>
 
 </mapper>

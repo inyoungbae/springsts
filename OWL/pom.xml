@@ -8,9 +8,7 @@
   <name>OWL Maven Webapp</name>
   <url>http://maven.apache.org</url>
   <properties>
-		<org.springframework-version>
-			4.2.5.RELEASE
-		</org.springframework-version>
+		<org.springframework-version>5.2.7.RELEASE</org.springframework-version>
 		<db-version>
 			11
 		</db-version>

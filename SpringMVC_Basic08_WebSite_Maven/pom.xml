@@ -8,9 +8,7 @@
 	<packaging>war</packaging>
 	<version>1.0.0-BUILD-SNAPSHOT</version>
 	  <properties>
-  	<org.springframework-version>
-     4.2.5.RELEASE
-    </org.springframework-version>
+  	<org.springframework-version>5.2.7.RELEASE</org.springframework-version>
     <db-version>
      11
     </db-version>
